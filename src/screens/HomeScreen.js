@@ -39,30 +39,52 @@ class HomeScreen extends React.Component {
       nextAppState === "active"
     ) {
       console.log("App has come to the foreground!");
-      this._getLocationAsync();
+      this.timeout = setInterval(async () => {
+        // await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
+        //   accuracy: Location.Accuracy.Balanced
+        // });
+        this._getLocationAsync();
+      }, 5000);
     }
     this.setState({ appState: nextAppState });
   };
 
   componentWillMount() {
     AppState.addEventListener("change", this.handleAppStateChange);
-    if (Platform.OS === "android" && !Constants.isDevice) {
-      this.setState({
-        errorMessage:
-          "Oops, this will not work on Sketch in an Android emulator. Try it on your device!"
-      });
-    } else {
+    // if (Platform.OS === "android" && !Constants.isDevice) {
+    //   this.setState({
+    //     errorMessage:
+    //       "Oops, this will not work on Sketch in an Android emulator. Try it on your device!"
+    //   });
+    // } else {
+    //   this._getLocationAsync();
+    // }
+    this.timeout = setInterval(async () => {
+      // await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
+      //   accuracy: Location.Accuracy.Balanced
+      // });
       this._getLocationAsync();
-    }
+    }, 5000);
   }
 
-  onPress = async () => {
-    this.timeout = setInterval(async () => {
-      await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
-        accuracy: Location.Accuracy.Balanced
-      });
-    }, 5000);
-  };
+  // onPress = async () => {
+  //   // await Location.hasServicesEnabledAsync().then(res => {
+  //   //   if (res) {
+  //   //     console.log("test online");
+  //   //   } else {
+  //   //     console.log("test offline");
+  //   //     this.getLocationPermission();
+  //   //   }
+  //   // });
+  //   // this.timeout = setInterval(async () => {
+  //   //   await Location.startLocationUpdatesAsync(LOCATION_TASK_NAME, {
+  //   //     accuracy: Location.Accuracy.Balanced
+  //   //   });
+  //   // }, 5000);
+  //   await Location.enableNetworkProviderAsync().then(res => {
+  //     console.log(res);
+  //   });
+  // };
 
   onPressStop = async () => {
     await Location.stopLocationUpdatesAsync(LOCATION_TASK_NAME)
@@ -81,8 +103,15 @@ class HomeScreen extends React.Component {
         return;
       }
 
-      let location = await Location.getCurrentPositionAsync({});
-      this.setState({ location });
+      //let location = await Location.getCurrentPositionAsync({});
+      let location = await Location.startLocationUpdatesAsync(
+        LOCATION_TASK_NAME,
+        {
+          accuracy: Location.Accuracy.Balanced
+        }
+      );
+
+      //this.setState({ location });
     } catch (error) {
       let status = Location.getProviderStatusAsync();
       if (!status.locationServicesEnabled) {
@@ -91,16 +120,16 @@ class HomeScreen extends React.Component {
     }
   };
 
-  openSetting = () => {
-    if (Platform.OS == "ios") {
-      Linking.openURL("app-settings:");
-    } else {
-      IntentLauncherAndroid.startActivityAsync(
-        IntentLauncherAndroid.ACTION_LOCATION_SOURCE_SETTINGS
-      );
-    }
-    this.setState({ openSetting: false });
-  };
+  // openSetting = () => {
+  //   if (Platform.OS == "ios") {
+  //     Linking.openURL("app-settings:");
+  //   } else {
+  //     IntentLauncherAndroid.startActivityAsync(
+  //       IntentLauncherAndroid.ACTION_LOCATION_SOURCE_SETTINGS
+  //     );
+  //   }
+  //   this.setState({ openSetting: false });
+  // };
 
   render() {
     let text = "Waiting..";
